@@ -95,6 +95,7 @@ public class Main extends Application {
                 }
             }
         }
+
         document.add(new Paragraph("Methods:")); // Add methods
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
