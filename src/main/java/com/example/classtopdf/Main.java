@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Main extends Application {
-    private Set<Class<?>> processedClasses = new HashSet<>();
+    private Set<Class<?>> processedClasses = new HashSet<>(); // HashSet that keeps track of classes that have already been processed
     public static void main(String[] args) {
         launch(args);
     }
@@ -55,8 +55,8 @@ public class Main extends Application {
     }
     // Recursive method to generate class documentation
     private void generateClassDocumentation(Class<?> clazz, String outputFile) throws FileNotFoundException {
-        try (PdfWriter writer = new PdfWriter(new FileOutputStream(outputFile));
-             Document document = new Document(new com.itextpdf.kernel.pdf.PdfDocument(writer))) {
+        try (PdfWriter writer = new PdfWriter(new FileOutputStream(outputFile)); // Writer for writing to a file
+             Document document = new Document(new com.itextpdf.kernel.pdf.PdfDocument(writer))) { // Document, представляющий PDF
 
             // Start with the main class
             document.add(new Paragraph("Class: " + clazz.getName()));
@@ -88,7 +88,7 @@ public class Main extends Application {
                     processClass(fieldType.getComponentType(), document);
                 } else if (Iterable.class.isAssignableFrom(fieldType)) {
                     // If it's a collection, we can't know the exact type of elements at runtime,
-                    // but we could document that it's a collection.
+                    // but we document that it's a collection.
                     document.add(new Paragraph(" (This is a collection, individual elements not shown.)"));
                 } else {
                     processClass(fieldType, document); // Recursively process the field class
