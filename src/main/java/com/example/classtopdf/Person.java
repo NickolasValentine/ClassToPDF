@@ -7,7 +7,7 @@ public class Person {
     private String lastName;
     private int age;
     private A a;
-    private Phone phone;
+    private Phone[] phone;
     private Address address;
     private List<Phone> phones;
 
