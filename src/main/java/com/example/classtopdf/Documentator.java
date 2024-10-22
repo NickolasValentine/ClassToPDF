@@ -3,13 +3,6 @@ package com.example.classtopdf;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,40 +13,17 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Main extends Application {
+public class Documentator {
     private Set<Class<?>> processedClasses = new HashSet<>();
-    public static void main(String[] args) {
-        launch(args);
+    Class<?> clazz;
+    String fileName;
+    public Documentator(Class<?> clazz, String fileName) throws FileNotFoundException {
+        this.clazz = clazz;
+        this.fileName = fileName;
+        generateClassDocumentation(clazz, fileName);
     }
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Class Documentor");
 
-        Label label = new Label("Enter class name:"); // Create UI elements
-        TextField classNameInput = new TextField();
-        Button generateButton = new Button("Generate PDF");
 
-        // Button click handler
-        generateButton.setOnAction(event -> {
-            String className = classNameInput.getText();
-            try {
-                Class<?> clazz = Class.forName(className);
-                generateClassDocumentation(clazz, "ClassDocumentation.pdf");
-                System.out.println("PDF generated successfully.");
-            } catch (ClassNotFoundException e) {
-                System.err.println("Class not found: " + className);
-            } catch (FileNotFoundException e) {
-                System.err.println("Error writing PDF: " + e.getMessage());
-            }
-        });
-
-        VBox vbox = new VBox(10, label, classNameInput, generateButton);// Layout
-        Scene scene = new Scene(vbox, 300, 200);
-
-        primaryStage.setScene(scene);// Set the scene
-        primaryStage.show();
-    }
-    // Recursive method to generate class documentation
     private void generateClassDocumentation(Class<?> clazz, String outputFile) throws FileNotFoundException {
         try (PdfWriter writer = new PdfWriter(new FileOutputStream(outputFile));
              Document document = new Document(new com.itextpdf.kernel.pdf.PdfDocument(writer))) {
@@ -83,10 +53,7 @@ public class Main extends Application {
             // Process fields that are not primitive or part of standard Java library (excluding arrays and strings)
             Class<?> fieldType = field.getType();
             if (!fieldType.isPrimitive() && !fieldType.getName().startsWith("java.lang")) {
-                if (fieldType.isArray()) {
-                    // If it's an array, process its component type
-                    processClass(fieldType.getComponentType(), document);
-                } else if (Iterable.class.isAssignableFrom(fieldType)) {
+                if (Iterable.class.isAssignableFrom(fieldType)) {
                     // If it's a collection, we can't know the exact type of elements at runtime,
                     // but we could document that it's a collection.
                     document.add(new Paragraph(" (This is a collection, individual elements not shown.)"));
@@ -109,7 +76,9 @@ public class Main extends Application {
     private String getMethodSignature(Method method) {
         StringBuilder signature = new StringBuilder();
         int modifiers = method.getModifiers(); // Get access modifier
-        if (Modifier.isPublic(modifiers)) {
+        if (Modifier.isStatic(modifiers)) {
+            signature.append("static ");
+        } else if (Modifier.isPublic(modifiers)) {
             signature.append("public ");
         } else if (Modifier.isProtected(modifiers)) {
             signature.append("protected ");
